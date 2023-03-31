@@ -548,11 +548,14 @@ grid.arrange(grobs = lapply(1:n_wt, function(x){
 # dev.off()
 
 # plot of priors #####
-par(mfrow=c(2, 3), oma=c(2,3,0.1,1), mar=c(2,2,2,2))
+
 par0 <- rob_res$par0
 par1 <- rob_res$par1
 taxis <- seq(0, 1, 0.001)
 
+setEPS()
+postscript(file = paste0(savefile, "/pr-comp.eps"))
+par(mfrow=c(2, 3), oma=c(2,3,0.1,1), mar=c(2,2,2,2))
 for(b in 1:B){
   tau <- (p1[b]-p0[b])/2
   par0[b, ] <- design.prior.bin(theta = p0[b], pt = c(0.05, 0.5, 0.95),
@@ -578,3 +581,4 @@ for(b in 1:B){
           outer = T, line = 0.6)
   }
 }
+dev.off()
