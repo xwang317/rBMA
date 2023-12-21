@@ -15,8 +15,9 @@ pmat <- sc_gene(p0, p1, nvec)
 plist <- split(pmat, seq(nrow(pmat)))
 
 # Number of simulation
-A = 1e2 
-
+A = 1e3 # 1000 times
+doFuture::registerDoFuture()
+future::plan(future::multisession)
 # set scenarios
 scenarios_list <- simulateScenarios(nlist,
                                     plist,
@@ -32,13 +33,51 @@ prior_parameters <- setPriorParametersExNex(
 
 set.seed(316)
 
-analyses_list <- performAnalyses(
-  scenario_list         = scenarios_list,
-  method_names          = "exnex",
-  prior_parameters_list = prior_parameters,
-  # seed                  = 42,
-  n_mcmc_iterations     = 5e4,
-  # n_cores               = 2L
-  )
+# analyses_list <- performAnalyses(
+#   scenario_list         = scenarios_list,
+#   method_names          = "exnex",
+#   prior_parameters_list = prior_parameters,
+#   # seed                  = 42,
+#   n_mcmc_iterations     = 5e4,
+#   # n_cores               = 2L
+#   )
+# 
+# saveRDS(analyses_list, "analyses_list.rds")
 
-saveRDS(analyses_list, "analyses_list.rds")
+estimates <- getEstimates(
+  analyses_list = analyses_list,
+  point_estimator = "mean"
+)
+
+scaleRoundList(
+  list = estimates,
+  scale_param = 1, 
+  round_digits = 2
+)
+
+decisions_list <- getGoDecisions(
+  analyses_list = analyses_list, 
+  cohort_names = c("p_1",
+                   "p_2",
+                   "p_3",
+                   "p_4",
+                   "p_5"),
+  evidence_levels = c(0.9,
+                      0.9,
+                      0.9,
+                      0.9,
+                      0.9),
+  boundary_rules = quote(c(x[1] > 0.05,
+                           x[2] > 0.25,
+                           x[3] > 0.2,
+                           x[4] > 0.05,
+                           x[5] > 0.1))
+)
+
+go_probabilities <- getGoProbabilities(decisions_list)
+
+scaleRoundList(
+  list = go_probabilities,
+  scale_param = 1,
+  round_digits = 3
+)
