@@ -14,24 +14,24 @@ p1 = c(0.25, 0.5, 0.45, 0.25, 0.35)
 pmat <- sc_gene(p0, p1, nvec)
 plist <- split(pmat, seq(nrow(pmat)))
 
-# Number of simulation
-A = 1e3 # 1000 times
-doFuture::registerDoFuture()
-future::plan(future::multisession)
-# set scenarios
-scenarios_list <- simulateScenarios(nlist,
-                                    plist,
-                                    n_trials = A)
-# prior models
-prior_parameters <- setPriorParametersExNex(
-  mu_mean   = c(logit(0.1), logit(0.3)),
-  mu_sd     = c(3.18, 1.94),
-  tau_scale = 1,
-  mu_j      = rep(logit(0.2), 5), # mu_j for NEX
-  tau_j     = rep(2.5, 5), # tau_j for NEX
-  w_j       = c(0.25, 0.25, 0.5)) # weight for two EX distributions and one NEX distribution 
-
-set.seed(316)
+# # Number of simulation
+# A = 1e3 # 1000 times
+# doFuture::registerDoFuture()
+# future::plan(future::multisession)
+# # set scenarios
+# scenarios_list <- simulateScenarios(nlist,
+#                                     plist,
+#                                     n_trials = A)
+# # prior models
+# prior_parameters <- setPriorParametersExNex(
+#   mu_mean   = c(logit(0.1), logit(0.3)),
+#   mu_sd     = c(3.18, 1.94),
+#   tau_scale = 1,
+#   mu_j      = rep(logit(0.2), 5), # mu_j for NEX
+#   tau_j     = rep(2.5, 5), # tau_j for NEX
+#   w_j       = c(0.25, 0.25, 0.5)) # weight for two EX distributions and one NEX distribution 
+# 
+# set.seed(316)
 
 # analyses_list <- performAnalyses(
 #   scenario_list         = scenarios_list,
@@ -43,6 +43,8 @@ set.seed(316)
 #   )
 # 
 # saveRDS(analyses_list, "analyses_list.rds")
+
+analyses_list <- readRDS("analyses_list.rds")
 
 estimates <- getEstimates(
   analyses_list = analyses_list,
@@ -62,11 +64,11 @@ decisions_list <- getGoDecisions(
                    "p_3",
                    "p_4",
                    "p_5"),
-  evidence_levels = c(0.9,
-                      0.9,
-                      0.9,
-                      0.9,
-                      0.9),
+  evidence_levels = c(0.95,
+                      0.975,
+                      0.975,
+                      0.975,
+                      0.975),
   boundary_rules = quote(c(x[1] > 0.05,
                            x[2] > 0.25,
                            x[3] > 0.2,
@@ -76,8 +78,23 @@ decisions_list <- getGoDecisions(
 
 go_probabilities <- getGoProbabilities(decisions_list)
 
-scaleRoundList(
-  list = go_probabilities,
-  scale_param = 1,
-  round_digits = 3
-)
+# scaleRoundList(
+#   list = go_probabilities,
+#   scale_param = 1,
+#   round_digits = 3
+# )
+
+# 'overall' column will be TRUE if there is any TRUE in 5 indications
+# View(decisions_list$scenario_1$decisions_list$exnex)
+# 0.099 in BMA and rBMA
+# FWER under S0
+go_probabilities$exnex$scenario_1[1]
+
+# calculate FWER and indication wise rejecting rate 
+
+# FWER
+exnex_fwer <- function(scenario_num){
+  decision_table <- decisions_list[[scenario_num]]$decisions_list$exnex[,2:6]
+  
+}
+

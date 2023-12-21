@@ -1,5 +1,5 @@
 rm(list = ls())
-setwd("C:/Users/xw455/OneDrive - Yale University/Desktop/rBMA-main/funs")
+setwd("D:/OneDrive - Yale University/proj-Wei-clinical trial/rBMA/funs")
 source("library.R")
 library(kableExtra)
 library(viridisLite)
@@ -10,11 +10,12 @@ library(xml2)
 library(gridExtra)
 library(ggpubr)
 library(cowplot)
+library(bhmbasket)
 
 # Draw plots for method comparison #######
 # FWER FWP ######
 # load result data 
-setwd("C:/Users/xw455/OneDrive - Yale University/Desktop/rBMA-main/simulation")
+setwd("D:/OneDrive - Yale University/proj-Wei-clinical trial/rBMA/simulation_data")
 
 
 load("bma_10000.RData")
@@ -31,7 +32,7 @@ B <- J <- 5  #number of indication
 wt_name <- bma_res$wt_name
 
 ## save location #####
-savefile <- "C:/Users/xw455/OneDrive - Yale University/Desktop/rBMA-main/plots"
+savefile <- "D:/OneDrive - Yale University/proj-Wei-clinical trial/rBMA/plots"
 # if folder does not exist, need to create it first before calling it. 
 
 # FWER ####
@@ -47,6 +48,8 @@ df.er$method[df.er$method == "robust"] <- "rBMA"
 df.er$method <- factor(df.er$method, levels = c("Reference", "BMA", "rBMA"))
 df.er$Scenario <- factor(df.er$Scenario, levels = 1:S, 
                          labels = paste0("S",0:(S-1)) )
+
+
 
 ## plot #####
 
