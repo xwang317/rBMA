@@ -1,5 +1,5 @@
 rm(list = ls())
-setwd("D:/OneDrive - Yale University/proj-Wei-clinical trial/rBMA/funs")
+setwd("~/Documents/rBMA/funs")
 source("library.R")
 library(kableExtra)
 library(viridisLite)
@@ -15,13 +15,15 @@ library(bhmbasket)
 # Draw plots for method comparison #######
 # FWER FWP ######
 # load result data 
-setwd("D:/OneDrive - Yale University/proj-Wei-clinical trial/rBMA/simulation_data")
+setwd("~/Documents/rBMA/simulation_data")
 
 
 load("bma_10000.RData")
 bma_res <- sim_result
 load("robust_10000.RData")
 rob_res <- sim_result
+load("exnex_10000.RData")
+exnex_res <- sim_result
 
 rm(sim_result)
 
@@ -29,26 +31,27 @@ A <- bma_res$A
 S <- nrow(bma_res$pmat)
 n <- length(bma_res$p0)
 B <- J <- 5  #number of indication
-wt_name <- bma_res$wt_name
+wt_name <- c(bma_res$wt_name, "EXNEX")
 
 ## save location #####
-savefile <- "D:/OneDrive - Yale University/proj-Wei-clinical trial/rBMA/plots"
+savefile <- "~/Documents/rBMA/plots"
 # if folder does not exist, need to create it first before calling it. 
 
 # FWER ####
 bma_er <- bma_res$fwer
 rob_er <- rob_res$fwer
-df.er <- rbind(bma_er, rob_er)
-df.er$name <- factor(df.er$name, levels = c(rob_res$wt_name))
-df.er <- df.er[df.er$name %in% c("non.info.bench","lin.ALT"), ]
+exnex_er <- exnex_res$fwer
+df.er <- rbind(bma_er, rob_er, exnex_er)
+df.er$name <- factor(df.er$name, levels = c(wt_name))
+df.er <- df.er[df.er$name %in% c("non.info.bench","lin.ALT","EXNEX"), ]
 df.er <- df.er[!(df.er$name == "non.info.bench" & df.er$method == "robust"),] 
 df.er$method[df.er$name == "non.info.bench"] <- "Reference"
 df.er$method[df.er$method == "bma"] <- "BMA"
 df.er$method[df.er$method == "robust"] <- "rBMA"
-df.er$method <- factor(df.er$method, levels = c("Reference", "BMA", "rBMA"))
+df.er$method <- factor(df.er$method, levels = c("Reference","EXNEX", "BMA", "rBMA"))
 df.er$Scenario <- factor(df.er$Scenario, levels = 1:S, 
                          labels = paste0("S",0:(S-1)) )
-
+df.er$value <- round(as.numeric(df.er$value), 3)
 
 
 ## plot #####
@@ -118,14 +121,16 @@ print(plot_grid(p_er1, p_er2, p_er3, align = "h", nrow = 1, rel_widths  = c(0.38
 # INDICATION - WISE plots:   #############
 bma_ind <- bma_res$ind_er
 rob_ind <- rob_res$ind_er
-ind_df <- rbind(bma_ind, rob_ind)
+exnex_ind <- exnex_res$ind_er
+
+ind_df <- rbind(bma_ind, rob_ind, exnex_ind)
 ind_df$er <- round(ind_df$er, 3)
-ind_df$pr_wt <- factor(ind_df$pr_wt, levels = c(rob_res$wt_name))
-ind_df <- ind_df[ind_df$pr_wt %in% c("non.info.bench","lin.ALT"), ]
+ind_df$pr_wt <- factor(ind_df$pr_wt, levels = c(wt_name))
+ind_df <- ind_df[ind_df$pr_wt %in% c("non.info.bench","lin.ALT","EXNEX"), ]
 ind_df <- ind_df[!(ind_df$pr_wt == "non.info.bench" & ind_df$method == "robust"),]
 ind_df$method[ind_df$pr_wt == "non.info.bench"] <- "Reference"
-ind_df$method <- factor(ind_df$method, levels = c("Reference", "bma", "robust"), 
-                        labels = c("Reference", "BMA", "rBMA"))
+ind_df$method <- factor(ind_df$method, levels = c("Reference", "EXNEX", "bma", "robust"), 
+                        labels = c("Reference", "EXNEX", "BMA", "rBMA"))
 ind_df$Scenario <- factor(ind_df$Scenario, levels = 1:S, 
                           labels = c("Global Null", 
                                      paste0(rep(1:J,3), " Positive", " - ", rep(c("Equal", "Lower", "Higher"),each = J))))
@@ -138,15 +143,16 @@ ind_df$ind[ind_df$ind == "D"] <- "#4"
 ind_df$ind[ind_df$ind == "E"] <- "#5"
 
 # end of data management
-
+type1_line = 0.05
+power_line = 0.9
 g_ind_equal <- ggplot(data = ind_df[ind_df$Scenario %in% c("Global Null", paste0(1:J, " Positive", " - ", rep("Equal",J))),], 
                      aes(x = ind, y = er, fill = Method)) + 
   geom_bar(position = "dodge", stat = "identity") + 
-  # two Reference line of power = 0.8 and type1er 0.025
-  # geom_hline(yintercept = 0.8) + 
-  # geom_hline(yintercept = 0.025) +
+  # two Reference lines of power and type1er
+  geom_hline(yintercept = power_line, linetype = "dashed", color = "gray") +
+  geom_hline(yintercept = type1_line, linetype = "dashed", color = "gray") +
   # ggtitle("Indication-wise Rejection Rate")+ 
-  ylim(c(0,1)) +
+  scale_y_continuous(breaks = c(0, 0.05, 0.25, 0.5, 0.75, 0.9, 1), limits = c(0,1)) + 
   xlab("Indication") + ylab("Probability of Rejecting Null Hypothesis") + 
   theme_bw() +
   theme(panel.background = element_blank(),
@@ -161,11 +167,11 @@ g_ind_equal <- ggplot(data = ind_df[ind_df$Scenario %in% c("Global Null", paste0
 g_ind_lower <- ggplot(data = ind_df[ind_df$Scenario %in% c("Global Null", paste0(1:J, " Positive", " - ", rep("Lower",J))),], 
                      aes(x = ind, y = er, fill = Method)) + 
   geom_bar(position = "dodge", stat = "identity") + 
-  # two Reference line of power = 0.8 and type1er 0.025
-  # geom_hline(yintercept = 0.8) + 
-  # geom_hline(yintercept = 0.025) +
+  # two Reference lines
+  geom_hline(yintercept = power_line, linetype = "dashed", color = "gray") +
+  geom_hline(yintercept = type1_line, linetype = "dashed", color = "gray") +
   # ggtitle("Indication-wise Rejection Rate")+ 
-  ylim(c(0,1)) +
+  scale_y_continuous(breaks = c(0, 0.05, 0.25, 0.5, 0.75, 0.9, 1), limits = c(0,1)) + 
   xlab("Indication") + ylab("Probability of Rejecting Null Hypothesis") + 
   theme_bw() +
   theme(panel.background = element_blank(),
@@ -180,11 +186,11 @@ g_ind_lower <- ggplot(data = ind_df[ind_df$Scenario %in% c("Global Null", paste0
 g_ind_high <- ggplot(data = ind_df[ind_df$Scenario %in% c("Global Null", paste0(1:J, " Positive", " - ", rep("Higher",J))),], 
                 aes(x = ind, y = er, fill = Method)) + 
   geom_bar(position = "dodge", stat = "identity") + 
-  # two Reference line of power = 0.8 and type1er 0.025
-  # geom_hline(yintercept = 0.8) + 
-  # geom_hline(yintercept = 0.025) +
+  # two Reference lines
+  geom_hline(yintercept = power_line, linetype = "dashed", color = "gray") +
+  geom_hline(yintercept = type1_line, linetype = "dashed", color = "gray") +
   # ggtitle("Indication-wise Rejection Rate")+ 
-  ylim(c(0,1)) +
+  scale_y_continuous(breaks = c(0, 0.05, 0.25, 0.5, 0.75, 0.9, 1), limits = c(0,1)) + 
   xlab("Indication") + ylab("Probability of Rejecting Null Hypothesis") + 
   theme_bw() +
   theme(panel.background = element_blank(),
