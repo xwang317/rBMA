@@ -253,10 +253,18 @@ load("sen-robust_10000.RData")
 rob_sen_res <- sim_result
 df.er_s <- rob_sen_res$fwer
 df.er_s$name <- factor(df.er_s$name, levels = c("non.info.bench", "lin.ALT", "qdr.ALT", "nega.ALT.1", "nega.ALT.2"), 
-                       labels = c("Reference", "gamma = 1", "gamma = 2", "gamma = -1", "gamma = -2"))
+                       labels = c("Reference", 
+                                  "$\gamma = 1$", 
+                                  "$\gamma = 2$", 
+                                  "$\gamma = -1$",
+                                  "$\gamma = -2$"))
 df.er_s$Scenario <- factor(df.er_s$Scenario, levels = 1:S, 
                            labels = c("Global Null", 
-                                      paste0(rep(1:5,3), " Positive", " - ", rep(c("Equal", "Lower", "Higher"),each = 5))) )
+                                      paste0(rep(1:5,3), 
+                                             " Positive", 
+                                             " - ", 
+                                             ep(c("Equal", "Lower", "Higher"),
+                                                each = 5))) )
 
 # sensitivty - INDICATION - WISE plots:   #############
 rob_sen_ind <- rob_sen_res$ind_er
@@ -264,11 +272,23 @@ ind_df_s <- rob_sen_ind
 ind_df_s$er <- round(as.numeric(ind_df_s$er),3)
 ind_df_s$Scenario <- factor(ind_df_s$Scenario, levels = 1:S)
 ind_df_s$pr_wt <- factor(ind_df_s$pr_wt, levels = c(rob_res$wt_name))
-ind_df_s$pr_wt <- factor(ind_df_s$pr_wt, levels = c("non.info.bench", "lin.ALT", "qdr.ALT","nega.ALT.1","nega.ALT.2"),
-                         labels = c("Reference", "gamma = 1", "gamma = 2","gamma = -1","gamma = -2"))
+ind_df_s$pr_wt <- factor(ind_df_s$pr_wt, levels = c("non.info.bench", 
+                                                    "lin.ALT", 
+                                                    "qdr.ALT",
+                                                    "nega.ALT.1",
+                                                    "nega.ALT.2"),
+                         labels = c("Reference", 
+                                    "$\gamma = 1$", 
+                                    "$\gamma = 2$",
+                                    "$\gamma = -1$",
+                                    "$\gamma = -2$"))
 ind_df_s$Scenario <- factor(ind_df_s$Scenario, levels = 1:S, 
                             labels = c("Global Null", 
-                                       paste0(rep(1:5,3), " Positive", " - ", rep(c("Equal", "Lower", "Higher"),each = 5))))
+                                       paste0(rep(1:5,3), 
+                                              " Positive", 
+                                              " - ", 
+                                              rep(c("Equal", "Lower", "Higher"),
+                                                  each = 5))))
 # end of data management
 
 # merge table of FWER & indication-wise result in one table: 
@@ -401,6 +421,7 @@ prior_mat <- rob_res$prior_mat
 n_posi <- rowSums(mods==1)
 w_map <- data.frame(cbind(n_posi, prior_mat))
 w_map$n_posi <- factor(w_map$n_posi)
+wt_name <- c(bma_res$wt_name)
 # make it long format
 w_map <- pivot_longer(w_map, cols = !n_posi)
 w_map <- w_map[w_map$name != "non.info.bench",]
@@ -560,12 +581,21 @@ grid.arrange(grobs = lapply(1:n_wt, function(x){
 
 par0 <- rob_res$par0
 par1 <- rob_res$par1
+p0 <- rob_res$p0
+p1 <- rob_res$p1
+del <- p1 - p0
 taxis <- seq(0, 1, 0.001)
 
-setEPS()
-postscript(file = paste0(savefile, "/pr-comp.eps"))
+# setEPS()
+# postscript(file = paste0(savefile, "/pr-comp.eps"))
 par(mfrow=c(2, 3), oma=c(2,3,0.1,1), mar=c(2,2,2,2))
 for(b in 1:B){
+  # Construct the title
+  theta_subscript <- paste0("0,", b)
+  Delta_subscript <- b
+  
+  title_expression <- bquote(theta[.(theta_subscript)] == .(p0[b]) ~ ", " ~ Delta[.(b)] == .(del[b]))
+
   tau <- (p1[b]-p0[b])/2
   par0[b, ] <- design.prior.bin(theta = p0[b], pt = c(0.05, 0.5, 0.95),
                                 lci = max(p0[b]-tau, 0), uci = p0[b]+tau)
@@ -578,7 +608,7 @@ for(b in 1:B){
   plot(taxis, den0, type = "l", las = 1, lwd = 3, xlab = "", ylab = "", 
        main = "", ylim = c(0, max(den0)+1), cex.axis = 1.5)
   lines(taxis, den1, col = 2, lwd = 3)
-  
+  title(main = title_expression, cex.main = 1.5)
   if(b==1){
     title(xlab = "", ylab = "Prior Density", cex.lab= 1.5, 
           outer = T, line = 1)
@@ -590,4 +620,5 @@ for(b in 1:B){
           outer = T, line = 0.6)
   }
 }
-dev.off()
+# dev.off()
+#
