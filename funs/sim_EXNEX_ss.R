@@ -5,7 +5,7 @@ library("bhmbasket")
 # number of baskets
 # sample size of baskets
 n_basket <- 5
-nvec <- c(20, 15, 20, 25, 30)
+nvec <- rep(20,5)
 nlist <- rep(list(nvec), times = 16)
 
 # response rate
@@ -15,7 +15,7 @@ pmat <- sc_gene(p0, p1, nvec)
 plist <- split(pmat, seq(nrow(pmat)))
 
 # Number of simulation
-A = 1e4 # 10000 times
+A = 1e2 # 10000 times
 doFuture::registerDoFuture()
 future::plan(future::multisession)
 # set scenarios
@@ -43,7 +43,7 @@ set.seed(316)
 #   )
 # 
 savefile <- "~/Documents/rBMA/simulation_data/"
-# saveRDS(analyses_list, paste0(savefile, "analyses_list_10000_ss.rds"))
+# saveRDS(analyses_list, paste0(savefile, "analyses_list_10000.rds"))
 # load the pre-ran results
 analyses_list <- readRDS(paste0(savefile, "analyses_list_10000.rds"))
 
