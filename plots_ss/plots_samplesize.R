@@ -18,11 +18,11 @@ library(bhmbasket)
 setwd("~/Documents/rBMA/simulation_data")
 
 
-load("bma_10000.RData")
+load("bma_10000_ss.RData")
 bma_res <- sim_result
-load("robust_10000.RData")
+load("robust_10000_ss.RData")
 rob_res <- sim_result
-load("exnex_10000.RData")
+load("exnex_10000_ss.RData")
 exnex_res <- sim_result
 
 rm(sim_result)
@@ -34,7 +34,7 @@ B <- J <- 5  #number of indication
 wt_name <- c(bma_res$wt_name, "EXNEX")
 
 ## save location #####
-savefile <- "~/Documents/rBMA/plots"
+savefile <- "~/Documents/rBMA/plots_ss"
 # if folder does not exist, need to create it first before calling it. 
 
 # FWER ####
@@ -112,9 +112,9 @@ p_er3 <- ggplot(data = df.er[df.er$Scenario %in% c("S0", paste0("S",11:15)),],
 #   ggtitle("FWER Over All Scenarios")+ ylim(c(0,1)) + 
 #   ylab("Family-Wise Type I error") + theme_classic() + 
 #   theme(axis.text.x=element_text(angle=45))
-
+# 
 # setEPS()
-# postscript(file = paste0(savefile,  "/fwer-",A,".eps"))
+# postscript(file = paste0(savefile,  "/fwer-",A,"_ss.eps"))
 print(plot_grid(p_er1, p_er2, p_er3, align = "h", nrow = 1, rel_widths  = c(0.38, 0.31, 0.31)))
 # dev.off()
 
@@ -226,21 +226,21 @@ scenario_high_label <- c("Global Null" = "S0",
 
 # print
 # setEPS()
-# postscript(paste0(savefile, "/ind-eq-",A,".eps"))
+# postscript(paste0(savefile, "/ind-eq-",A,"_ss.eps"))
 print(g_ind_equal +
         facet_wrap(~ Scenario,ncol = 3, nrow = 2, labeller = labeller(Scenario = scenario_equal_label)))+
   theme(panel.spacing.y = unit(0.4, "in"))
 # dev.off()
 
 # setEPS()
-# postscript(paste0(savefile, "/ind-e-",A,".eps"))
+# postscript(paste0(savefile, "/ind-e-",A,"_ss.eps"))
 print(g_ind_lower +
         facet_wrap(~ Scenario,ncol = 3, nrow = 2, labeller = labeller(Scenario = scenario_lower_label))) +
   theme(panel.spacing.y = unit(0.4, "in"))
 # dev.off()
 
 # setEPS()
-# postscript(paste0(savefile, "/ind-p-",A,".eps"))
+# postscript(paste0(savefile, "/ind-p-",A,"_ss.eps"))
 print(g_ind_high +
         facet_wrap(~ Scenario,ncol = 3, nrow = 2, labeller = labeller(Scenario = scenario_high_label)))+
   theme(panel.spacing.y = unit(0.4, "in"))
