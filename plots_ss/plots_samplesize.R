@@ -228,22 +228,22 @@ scenario_high_label <- c("Global Null" = "S0",
 # setEPS()
 # postscript(paste0(savefile, "/ind-eq-",A,"_ss.eps"))
 print(g_ind_equal +
-        facet_wrap(~ Scenario,ncol = 3, nrow = 2, labeller = labeller(Scenario = scenario_equal_label)))+
-  theme(panel.spacing.y = unit(0.4, "in"))
+        facet_wrap(~ Scenario,ncol = 3, nrow = 2, labeller = labeller(Scenario = scenario_equal_label))+
+        theme(panel.spacing.y = unit(0.4, "in")))
 # dev.off()
 
 # setEPS()
 # postscript(paste0(savefile, "/ind-e-",A,"_ss.eps"))
 print(g_ind_lower +
-        facet_wrap(~ Scenario,ncol = 3, nrow = 2, labeller = labeller(Scenario = scenario_lower_label))) +
-  theme(panel.spacing.y = unit(0.4, "in"))
+        facet_wrap(~ Scenario,ncol = 3, nrow = 2, labeller = labeller(Scenario = scenario_lower_label)) +
+  theme(panel.spacing.y = unit(0.4, "in")))
 # dev.off()
 
 # setEPS()
 # postscript(paste0(savefile, "/ind-p-",A,"_ss.eps"))
 print(g_ind_high +
-        facet_wrap(~ Scenario,ncol = 3, nrow = 2, labeller = labeller(Scenario = scenario_high_label)))+
-  theme(panel.spacing.y = unit(0.4, "in"))
+        facet_wrap(~ Scenario,ncol = 3, nrow = 2, labeller = labeller(Scenario = scenario_high_label)) +
+  theme(panel.spacing.y = unit(0.4, "in")))
 # dev.off()
 
 # SENSITIVITY ######
