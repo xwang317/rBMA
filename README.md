@@ -6,8 +6,9 @@ Oncology drug research in the last few decades has been driven by the developmen
 
 # subfolders  
 -- funs: scripts to reproduce simulation and sensetivity analysis in the article  
--- plots: scripts to generate figures appears in the article and figures  
--- simulation: folder to save results of simulation and sensitivity analysis  
+-- plots: scripts to generate figures appears in the article with the same sample size of 20  
+-- plots_s: scripts to generate figures appears in the Supplementary with the different sample size 
+-- simulation_data: folder to save results of simulation and sensitivity analysis  
   
 # Code Overview:   
   
